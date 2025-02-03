@@ -3,11 +3,9 @@ import fastapi
 
 app = fastapi.FastAPI()
 
-@app.post('/option')
+@app.get('/')
 
-async def index(request: Request):
-    body = await request.json()
-    option = body["option"]
+async def index(option: int):
 
     options = {1: "Hi there",
             2: "Hola amigo",
@@ -16,6 +14,7 @@ async def index(request: Request):
     print("You selected '" + str(option) + "'")
     
     greeting_message = options[option]
+    print(f"Option '{option}' was selected: '{greeting_message}'")
     return {"greeting":greeting_message}
 
 
