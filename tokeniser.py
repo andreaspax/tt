@@ -9,7 +9,6 @@ import json
 
 script_dir = os.path.dirname(__file__)
 
-
 def create_vocab(corpus: str, min_freq: int = 5) -> dict:
     # Tokenize and clean
     tokens = re.findall(r'\b\w+\b', corpus.lower())
@@ -58,9 +57,20 @@ def text_to_ids(text: str, vocab: dict) -> list[int]:
             for word in re.findall(r'\b\w+\b', text)]
 
 def ids_to_text(ids: list[int], vocab: dict) -> str:
-    return ' '.join(vocab[id] for id in ids)
+    """Convert list of token IDs to their corresponding words"""
+    # Handle single integer input
+    if isinstance(ids, int):
+        ids = [ids]
+    
+    # Create inverse vocabulary mapping (ID -> word)
+    id_to_word = {v: k for k, v in vocab.items()}
+    
+    # Convert IDs to words, handling unknown IDs
+    return ' '.join(id_to_word.get(id, "<UNK>") for id in ids)
+
 
 if __name__== "__main__":
+
     # create vocab.json if executing script
     #Check if text8 and download
     if not os.path.exists(os.path.join(script_dir, "text8")):

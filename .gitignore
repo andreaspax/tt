@@ -214,3 +214,4 @@ cython_debug/
 # Imported files
 *.parquet
 text8
+*.npy
