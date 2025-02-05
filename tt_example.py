@@ -87,8 +87,11 @@ for epoch in range(epochs):
         optimizer.step()
         
         # Logging
-        wandb.log({"loss": loss.item()})
-
+        wandb.log({
+        "loss": loss.item(),
+        "pos_sim": pos_sim.mean().item(),
+        "neg_sim": neg_sim.mean().item()
+        })
 
 print("Saving...")
 torch.save(tower_one.state_dict(), "./document_tower.pt")
