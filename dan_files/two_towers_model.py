@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 class TwoTowerModel(nn.Module):
     def __init__(self, vocab_size, emb_dims, embedding_matrix, query_tower_layers, answer_tower_layers, 
