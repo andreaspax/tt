@@ -2,7 +2,7 @@ import torch
 import wandb
 import tqdm
 import numpy as np
-
+import tt_models
 
 
 torch.manual_seed(2)
@@ -25,35 +25,14 @@ def load_triples(file_path, device):
     neg_tensors = torch.stack([torch.tensor(t[2], dtype=torch.float32, device=device) for t in triples])
     
     return query_tensors, pos_tensors, neg_tensors
-
-
-class TowerOne(torch.nn.Module):
-    def __init__(self):
-        super(TowerOne,self).__init__()
-        self.fc=torch.nn.Linear(300,300)
-        self.fc=torch.nn.Linear(300,300)
-        self.fc=torch.nn.Linear(300,300)
-    def forward(self, x):
-        x = self.fc(x)
-        return x
-    
-class TowerTwo(torch.nn.Module):
-    def __init__(self):
-        super(TowerTwo,self).__init__()
-        self.fc=torch.nn.Linear(300,300)
-        self.fc=torch.nn.Linear(300,300)
-        self.fc=torch.nn.Linear(300,300)    
-    def forward(self, x):
-        x = self.fc(x)
-        return x
     
 # Usage in training loop
 queries, positive_documents, negative_documents = load_triples('validation_averaged_triples.npy', device)
 dataset = torch.utils.data.TensorDataset(queries, positive_documents, negative_documents)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=512, shuffle=True)
 
-tower_one = TowerOne()
-tower_two = TowerTwo()
+tower_one = tt_models.TowerOne()
+tower_two = tt_models.TowerTwo()
 
 tower_one.to(device)
 tower_two.to(device)
