@@ -218,3 +218,7 @@ text8
 test_dataset.json
 train_dataset.json
 validation_dataset.json
+*.pt
+
+# other directories
+/harry/
