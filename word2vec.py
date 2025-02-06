@@ -49,17 +49,6 @@ if __name__ == "__main__":
 
     # # # # Extract and save vectors for each word in vocab
     subset_vectors = {word: model[word] for word in words if word in model}
-<<<<<<< Updated upstream
-    np.save('subset_vectors.npy', subset_vectors) # to save the vectors if wanted
-
-    # # Replace keys in loaded_vectors with their corresponding token IDs using text_to_id
-    id_vectors = {vocab[word]: vector for word, vector in subset_vectors.items() if word in vocab}   
-    np.save('subset_id_vectors.npy', id_vectors)
-    
-    print("id_vectors.npy saved")
-    print(len(id_vectors))
-    print(np.array(list(id_vectors.values())).shape)
-=======
     np.save('id_vectors.npy', subset_vectors) # to save the vectors if wanted
 
     # # # Replace keys in loaded_vectors with their corresponding token IDs using text_to_id
@@ -69,7 +58,6 @@ if __name__ == "__main__":
     print("id_vectors.npy saved")
     # print(len(id_vectors))
     # print(np.array(list(id_vectors.values())).shape)
->>>>>>> Stashed changes
 
     # check
     test_word = "king"
@@ -77,16 +65,10 @@ if __name__ == "__main__":
     print(f"Checking with word {test_word}")
     embeddings = text_to_embeddings(test_word, vocab, 'id_vectors.npy')
     query_vector = np.mean(embeddings, axis=0)  # Average all token embeddings
-<<<<<<< Updated upstream
-    similar_vectors = find_similar_vectors(query_vector, vectors, 5)
-    similar_words = [tokeniser.ids_to_text(int(vector[0]),vocab) for vector in similar_vectors]    
-    print(f"Similar words: {similar_words}")
-=======
     print(query_vector.shape)
     # similar_vectors = find_similar_vectors(query_vector, vectors, 5)
     # similar_words = [tokeniser.ids_to_text(int(vector[0]),vocab) for vector in similar_vectors]    
     # print(f"Similar words: {similar_words}")
->>>>>>> Stashed changes
 
 
 

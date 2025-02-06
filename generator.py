@@ -1,6 +1,7 @@
 import datasets
 import random
 import pandas as pd
+import numpy as np
 import word2vec
 import tokeniser
 
@@ -34,24 +35,22 @@ def flatten_dataset(dataset):
     return flat_df
 
 
-def process_dataframe(df, text_columns):
+def process_dataframe(df):
     vocab = tokeniser.load_vocab('vocab.json')
     """Add embeddings for all text columns"""
-    for col in text_columns:
-        # Create embedding column
-        df[f'{col}_embedding'] = df[col].apply(word2vec.text_to_embeddings(df[col], vocab, 'id_vectors.npy'))
-        
-        # Convert numpy arrays to lists for storage
-        df[f'{col}_embedding'] = df[f'{col}_embedding'].apply(lambda x: x.tolist())
+    for col in df.columns:
+        df[col] = df[col].apply(lambda row: np.mean(word2vec.text_to_embeddings(row, vocab, 'id_vectors.npy'), axis=0) if isinstance(row, str) else row)
     
     return df
 
     
 
 ds_test = datasets.Dataset.from_parquet("ms_marco_test.parquet")
+ds_test = ds_test.select(range(20))
 # # Create flattened DataFrame
 flat_test = flatten_dataset(ds_test).drop(columns=['passages.url', 'answers', 'query_type','wellFormedAnswers','passages.is_selected','query_id'], errors='ignore')
-print(flat_test.head(20))
-
-proc_test = process_dataframe(flat_test, ['query', 'passages.passage_text', 'unrelated_passage'])
-print(proc_test.head(20))
+# print(flat_test.head(20))
+process_test = process_dataframe(flat_test)
+print(process_test.shape)
+print(process_test['unrelated_passage'][0].shape)
+# print(process_test.head(20))
