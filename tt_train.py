@@ -48,7 +48,7 @@ class TowerTwo(torch.nn.Module):
         return x
     
 # Usage in training loop
-queries, positive_documents, negative_documents = load_triples('train_averaged_triples.npy', device)
+queries, positive_documents, negative_documents = load_triples('validation_averaged_triples.npy', device)
 dataset = torch.utils.data.TensorDataset(queries, positive_documents, negative_documents)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=512, shuffle=True)
 
@@ -59,9 +59,9 @@ tower_one.to(device)
 tower_two.to(device)
 
 
-epochs = 1
+epochs = 10
 initial_lr = 0.001
-margin = 0.2
+margin = 0.1
 wandb.init(
         project="mlx6-twotowers",
         config={
@@ -76,6 +76,14 @@ optimizer = torch.optim.Adam(
     lr=initial_lr
 )
 
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+optimizer,
+    mode='min',         # Monitor loss
+    factor=0.5,         # Reduce LR by 50%
+    patience=2,         # Wait 2 epochs with no improvement
+    verbose=True,
+    min_lr=1e-6
+)
 
 
 for epoch in range(epochs):
@@ -93,6 +101,9 @@ for epoch in range(epochs):
         neg_sim = torch.cosine_similarity(anchor_emb, negative_emb, dim=-1)
         loss = torch.clamp(margin - (pos_sim - neg_sim), min=0).mean()
 
+        # Update learning rate
+        scheduler.step(loss)
+
         # Backpropagation
         loss.backward()
         optimizer.step()
@@ -101,16 +112,19 @@ for epoch in range(epochs):
         wandb.log({
         "loss": loss.item(),
         "pos_sim": pos_sim.mean().item(),
-        "neg_sim": neg_sim.mean().item()
+        "neg_sim": neg_sim.mean().item(),
+        "learning_rate" : optimizer.param_groups[0]['lr']
         })
 
-print("Saving...")
-torch.save(tower_one.state_dict(), "./document_tower.pt")
-torch.save(tower_two.state_dict(), "./query_tower.pt")
-print("Uploading...")
-artifact = wandb.Artifact("model-weights", type="model")
-artifact.add_file("./document_tower.pt")
-artifact.add_file("./query_tower.pt")
-wandb.log_artifact(artifact)
+
+    print("Saving...")
+    torch.save(tower_one.state_dict(), f"./weights/epoch{epoch+1}_query_tower.pt")
+    torch.save(tower_two.state_dict(), f"./weights/epoch{epoch+1}_document_tower.pt")
+    print("Uploading...")
+    artifact = wandb.Artifact("model-weights", type="model")
+    artifact.add_file(f"./weights/epoch{epoch+1}_document_tower.pt")
+    artifact.add_file(f"./weights/epoch{epoch+1}_query_tower.pt")
+    wandb.log_artifact(artifact)
+
 print("Done!")
 wandb.finish()
