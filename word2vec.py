@@ -49,15 +49,14 @@ if __name__ == "__main__":
 
     # # # # Extract and save vectors for each word in vocab
     subset_vectors = {word: model[word] for word in words if word in model}
-    np.save('id_vectors.npy', subset_vectors) # to save the vectors if wanted
 
-    # # # Replace keys in loaded_vectors with their corresponding token IDs using text_to_id
-    # id_vectors = {vocab[word]: vector for word, vector in subset_vectors.items() if word in vocab}   
-    # np.save('subset_id_vectors.npy', id_vectors)
+
+    # # Replace keys in loaded_vectors with their corresponding token IDs using text_to_id
+    id_vectors = {vocab[word]: vector for word, vector in subset_vectors.items() if word in vocab}   
+    np.save('id_vectors.npy', id_vectors)
     
     print("id_vectors.npy saved")
-    # print(len(id_vectors))
-    # print(np.array(list(id_vectors.values())).shape)
+
 
     # check
     test_word = "king"

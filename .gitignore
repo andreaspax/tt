@@ -222,3 +222,4 @@ validation_dataset.json
 # other directories
 /harry/
 /weights/
+*.pkl
