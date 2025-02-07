@@ -61,11 +61,11 @@ def find_top_k_nearest_neighbors(query_tensor, tower_two_output_dict, document_d
     
     return top_k_documents, top_k_scores.values
 
-@app.get('/')
+@app.get('/search')
 
-async def index(query: str):
+async def search(query: str):
 # if __name__ == "__main__":
-    query = "what is a furuncle boil"
+    # query = "what is a furuncle boil"
     query_embedding = word2vec.text_to_embeddings(query, vocab, 'id_vectors.npy')
     query_embedding_mean = np.mean(np.array(query_embedding), axis=0)
     query_tensor = torch.tensor(query_embedding_mean, dtype=torch.float32).to(device)
