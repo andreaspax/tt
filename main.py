@@ -54,19 +54,27 @@ def find_top_k_nearest_neighbors(query_tensor, tower_two_output_dict, document_d
     similarities = torch.cosine_similarity(query_tensor.unsqueeze(0), output_embeddings)
 
     # Get the top k indices of the nearest neighbors
-    top_k_scores = torch.topk(similarities, k=k)
+    top_k_index = torch.topk(similarities, k=k).indices
+
+    top_k_scores = torch.topk(similarities, k=k).values
+
 
     # Retrieve the corresponding embeddings and indices
-    top_k_documents = {document_dict[idx.item()] for idx in top_k_scores.indices}
+    top_k_documents = {document_dict[idx.item()] for idx in top_k_index}
     
-    return top_k_documents, top_k_scores.values
+    return top_k_documents, top_k_scores
 
-@app.get('/search')
+@app.get('/')
+async def root():
+    return {"message": "Hello World"}
 
+@app.get("/search")
 async def search(query: str):
+    # if query.strip()==  '': return []
 # if __name__ == "__main__":
     # query = "what is a furuncle boil"
     query_embedding = word2vec.text_to_embeddings(query, vocab, 'id_vectors.npy')
+    if query_embedding is None: return [{"no_embedding": True}]
     query_embedding_mean = np.mean(np.array(query_embedding), axis=0)
     query_tensor = torch.tensor(query_embedding_mean, dtype=torch.float32).to(device)
     tower_one_output = t1_model(query_tensor)
@@ -77,11 +85,11 @@ async def search(query: str):
         , unique_documents
         , k)
 
-    print(f"Seach query: '{query}'")
-    n=0
-    for d, s in zip(top_k_neighbors, top_k_scores):
-        n += 1
-        print(f"Top {n} nearest score: {s:.4f}")
-        print(f"Top {n} document: {d}")
+    # print(f"Seach query: '{query}'")
+    # n=0
+    # for d, s in zip(top_k_neighbors, top_k_scores):
+    #     n += 1
+    #     print(f"Top {n} nearest score: {s:.4f}")
+    #     print(f"Top {n} document: {d}")
 
     return [{'score': s, 'document': d} for s, d in zip(top_k_scores, top_k_neighbors)]   
