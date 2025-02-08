@@ -85,11 +85,4 @@ async def search(query: str):
         , unique_documents
         , k)
 
-    # print(f"Seach query: '{query}'")
-    # n=0
-    # for d, s in zip(top_k_neighbors, top_k_scores):
-    #     n += 1
-    #     print(f"Top {n} nearest score: {s:.4f}")
-    #     print(f"Top {n} document: {d}")
-
     return [{'score': s, 'document': d} for s, d in zip(top_k_scores, top_k_neighbors)]   
